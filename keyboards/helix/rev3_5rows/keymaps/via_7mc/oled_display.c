@@ -110,61 +110,53 @@ static void render_rgbled_status(bool full) {
 #endif
 }
 
-static void render_rgbled_mode(void) {
-#ifdef RGBLIGHT_ENABLE
-  char buf[24];
-    snprintf(buf, sizeof(buf), "Mode %5dSpd  %5d",
-        rgblight_get_mode(),
-        rgblight_get_speed()
-    );
-  oled_write(buf, false);
-#endif
-}
+// static void render_rgbled_mode(void) {
+// #ifdef RGBLIGHT_ENABLE
+//   char buf[24];
+//     snprintf(buf, sizeof(buf), "Mode %5dSpd  %5d",
+//         rgblight_get_mode(),
+//         rgblight_get_speed()
+//     );
+//   oled_write(buf, false);
+// #endif
+// }
 
-static void render_rgbled_color(void) {
-#ifdef RGBLIGHT_ENABLE
-  char buf[24];
-    snprintf(buf, sizeof(buf), "H| %2dS| %2dV| %2d",
-        rgblight_get_hue()/RGBLIGHT_HUE_STEP,
-        rgblight_get_sat()/RGBLIGHT_SAT_STEP,
-        rgblight_get_val()/RGBLIGHT_VAL_STEP
-    );
-  oled_write(buf, false);
-#endif
-}
+// static void render_rgbled_color(void) {
+// #ifdef RGBLIGHT_ENABLE
+//   char buf[24];
+//     snprintf(buf, sizeof(buf), "H| %2dS| %2dV| %2d",
+//         rgblight_get_hue()/RGBLIGHT_HUE_STEP,
+//         rgblight_get_sat()/RGBLIGHT_SAT_STEP,
+//         rgblight_get_val()/RGBLIGHT_VAL_STEP
+//     );
+//   oled_write(buf, false);
+// #endif
+// }
 
 bool oled_task_user(void) {
   // Render logo for both master and slave
     render_logo(!is_transport_connected());
         render_horizontal_line();
 
-  if(is_keyboard_master()){
     render_mode_status();
         render_horizontal_line();
 
-    if (!is_transport_connected()) {
-        // If the keyboard is used as a single keyboard,
-        // render RGB LED status on holding Lower key with a delay
+    // If the keyboard is used as a single keyboard,
+    // render RGB LED status on holding Lower key with a delay
 
-        if (get_highest_layer(layer_state) != _LOWER) {
-            layer_lower_timer = timer_read() + RGBLED_STATUS_DELAY;
-        }
-
-        if (timer_expired(timer_read(), layer_lower_timer)) {
-            render_rgbled_status(true);
-            return false;
-        }
+    if (get_highest_layer(layer_state) != _LOWER) {
+        layer_lower_timer = timer_read() + RGBLED_STATUS_DELAY;
     }
+
+    if (timer_expired(timer_read(), layer_lower_timer)) {
+        render_rgbled_status(true);
+        return false;
+    }
+
     // Otherwise, render Lock status
     render_lock_status();
     oled_write_P(PSTR("     "), false);
 
-  }else{
-    // Render RGB LED status for the slave
-    render_rgbled_mode();
-        render_horizontal_line();
-    render_rgbled_color();
-  }
     return false;
 }
 #endif
